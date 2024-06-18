@@ -1,13 +1,7 @@
-const token = "7343786039:AAGyaAfLxYUvH-xKO6rfRf-qFdE6zT4hTO0";
-
-const TelegramBot = require('node-telegram-bot-api');
 const mongoose = require('mongoose');
+const TelegramBot = require('node-telegram-bot-api');
 const crypto = require('crypto');
-const User = require('./models/user');
-
-const bot = new TelegramBot(token, { polling: true });
-const webAppUrl = "https://your-web-app-url.com";
-const communityAppUrl = "https://t.me/pisarevich";
+const User = require('./models/user'); // Подставьте свой путь к модели User
 
 mongoose.connect('mongodb://localhost:27017/EpicConnect', {
     useNewUrlParser: true,
@@ -20,6 +14,11 @@ db.once('open', () => {
     console.log('Connected to MongoDB');
 });
 
+const token = "7343786039:AAGyaAfLxYUvH-xKO6rfRf-qFdE6zT4hTO0";
+const bot = new TelegramBot(token, { polling: true });
+const webAppUrl = "https://c2dd-80-249-83-25.ngrok-free.app";
+const communityAppUrl = "https://t.me/pisarevich";
+
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -28,46 +27,73 @@ bot.on('message', async (msg) => {
         const refCodeMatch = text.match(/\/start (.+)/);
         const referrerReferralCode = refCodeMatch ? refCodeMatch[1].replace('ref_', '') : null;
 
-        let user = await User.findOne({ chatId: chatId });
+        let user = await User.findOne({ chatId });
 
         if (!user) {
             const referralCode = generateReferralCode();
-            console.log(`Referral link user ${chatId} (): https://t.me/EpicConnectFatherBot?start=ref_${referralCode}`);
+            console.log(`Referral link user ${chatId}: https://t.me/EpicConnectFatherBot?start=ref_${referralCode}`);
 
             const newUser = new User({
-                chatId: chatId,
-                referralCode: referralCode,
-                referrerChatId: null
+                chatId,
+                referralCode,
+                referrerChatId: null,
+                referralId: null  // Инициализируем referralId как null по умолчанию
             });
 
             if (referrerReferralCode) {
                 const referrer = await User.findOne({ referralCode: referrerReferralCode });
-                if (referrer) {
+
+                if (referrer && referrer.chatId !== chatId) {
                     newUser.referrerChatId = referrer.chatId;
+                    newUser.referralId = referrer._id;  // Устанавливаем referralId
                     await bot.sendMessage(referrer.chatId, `Finally! @${msg.from.username} joined your Web3 hub on EPIC!`);
+                } else {
+                    console.log('User attempted self-referral or invalid referral code');
                 }
             }
 
             user = await newUser.save();
+        } else if (referrerReferralCode && !user.referralId) {
+            const referrer = await User.findOne({ referralCode: referrerReferralCode });
+
+            if (referrer && referrer.chatId !== chatId) {
+                user.referrerChatId = referrer.chatId;
+                user.referralId = referrer._id;
+                await bot.sendMessage(referrer.chatId, `Finally! @${msg.from.username} joined your Web3 hub on EPIC!`);
+                user = await user.save();
+            } else {
+                console.log('User attempted self-referral or invalid referral code');
+            }
         }
 
-        user = await User.findOne({ chatId: chatId });
+        const invitationMessage = user.referrerChatId
+            ? `Welcome to Epic Connect — your hub for connecting with Web3 builders, investors, and professionals!\n\n- Complete your profile and start receiving requests from other professionals\n- Earn Ē points by responding to requests\n- Use your points to reach out to other Web3 professionals`
+            : `Epic Connect is currently invite-only. Ask a friend for an invite to join.`;
 
-        const referralLink = `https://t.me/EpicConnectFatherBot?start=ref_${user.referralCode}`;
+        const replyMarkup = user.referrerChatId
+            ? {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'GO!', web_app: { url: webAppUrl } }],
+                        [{ text: 'Join Community!', url: communityAppUrl }]
+                    ]
+                }
+            }
+            : {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'Join Community!', url: communityAppUrl }]
+                    ]
+                }
+            };
 
         let username = msg.from.username ? `@${msg.from.username}` : '';
 
-        await bot.sendMessage(chatId, `Hey ${username}! It's Epic Connect! 🌟 Your go-to app for connecting with Web3 builders, investors, and professionals!📱`, {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: 'Launch Epic Connect', url: webAppUrl }],
-                    [{ text: 'Join community', url: communityAppUrl }]
-                ]
-            }
-        });
+        await bot.sendMessage(chatId, `Hey ${username}! ${invitationMessage}`, replyMarkup);
     }
 });
 
 function generateReferralCode() {
     return crypto.randomBytes(4).toString('hex');
 }
+
