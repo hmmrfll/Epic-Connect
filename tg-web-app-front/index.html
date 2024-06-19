@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <title>Earn Ē Tokens</title>
+    <link rel="stylesheet" href="src/earn/index.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<div id="app"></div>
-<script type="module" src="/src/index.js"></script>
+<div class="container">
+    <header>
+        <h1>Your Balance: <span id="balance">0</span> Ē</h1>
+    </header>
+    <main id="tasks-list">
+        <!-- Tasks will be dynamically added here -->
+    </main>
+</div>
+<script src="src/earn/index.js"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@ db.once('open', () => {
 
 const token = "7343786039:AAGyaAfLxYUvH-xKO6rfRf-qFdE6zT4hTO0";
 const bot = new TelegramBot(token, { polling: true });
-const webAppUrl = "https://c2dd-80-249-83-25.ngrok-free.app";
+const webAppUrl = "https://964b-212-98-175-146.ngrok-free.app";
 const communityAppUrl = "https://t.me/pisarevich";
 
 bot.on('message', async (msg) => {

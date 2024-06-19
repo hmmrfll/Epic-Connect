@@ -1,0 +1,78 @@
+/* Основные стили для приложения */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--tg-theme-bg-color); /* Белый фон по умолчанию */
+    color: var(--tg-theme-text-color); /* Цвет текста по умолчанию */
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: var(--tg-theme-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    color: var(--tg-theme-text-color);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 24px;
+    color: var(--tg-theme-text-color);
+}
+
+#tasks-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.task {
+    display: flex; /* Используем flexbox для расположения элементов */
+    align-items: center; /* Выравниваем элементы по вертикали */
+    background-color: var(--tg-theme-secondary-bg-color); /* Вторичный цвет фона по умолчанию */
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.task-content {
+    flex: 1; /* Занимает оставшееся пространство внутри flex-контейнера */
+}
+
+.task h2 {
+    font-size: 18px;
+    color: var(--tg-theme-text-color);
+    margin-bottom: 4px;
+}
+
+.task p {
+    color: var(--tg-theme-text-color);
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.task-points {
+    font-size: 14px;
+    color: #888888; /* Цвет для количества баллов */
+    margin-top: 4px;
+}
+
+.task button {
+    background-color: var(--tg-theme-button-color); /* Цвет кнопок по умолчанию */
+    color: var(--tg-theme-button-text-color); /* Цвет текста на кнопках по умолчанию */
+    border: none;
+    padding: 8px 16px; /* Фиксированный размер кнопки */
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 20px; /* Закругление кнопки */
+    cursor: pointer;
+    margin-left: auto; /* Кнопка всегда вправо */
+}
